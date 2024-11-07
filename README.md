@@ -46,7 +46,7 @@ yarn build
 Интерфейс и типы данных, описывающих карточку товара
 
 ```
-export interface IProductItem {
+interface IProductItem {
 	id: string;
 	title: string;
 	price: number | null;
@@ -55,8 +55,8 @@ export interface IProductItem {
 	description: string;
 }
 
-export type IBasket = Pick<IProductItem, 'id' | 'title' | 'price'>;
-export type ICatalog = Pick<
+type IBasket = Pick<IProductItem, 'id' | 'title' | 'price'>;
+type ICatalog = Pick<
 	IProductItem,
 	'id' | 'title' | 'price' | 'image' | 'category'>;
 
@@ -65,16 +65,16 @@ export type ICatalog = Pick<
 Интерфейс и типы данных, описывающих данные покупателя
 
 ```
-export interface IOrderInfo {
+interface IOrderInfo {
 	payment: string;
 	address: string;
 	email: string;
 	phone: string;
 }
 
-export type IDeliveryForm = Pick<IOrderInfo, 'payment' | 'address'>;
-export type IDataForm = Pick<IOrderInfo, 'email' | 'phone'>;
-
+type IDeliveryForm = Pick<IOrderInfo, 'payment' | 'address'>;
+type IDataForm = Pick<IOrderInfo, 'email' | 'phone'>;
+type IDataForm = IDeliveryForm & IContactsForm;
 ```
 
 Интерфейс, описывающий оформление заказа
@@ -95,13 +95,17 @@ interface IOrderResult {
 	total: number;
 }
 ```
+Тип, описывающий ошибки валидации форм
 
+```
+type FormErrors = Partial<Record<keyof IOrder, string>>;
+```
 //Интерфейс, для хранения актуального состояния приложения
 
 ```
 interface IAppState {
-	product: IProductItem[];
-	basket: string[];
+	product: ICatalog[];
+	basket: IBasket[];
 	preview: string | null;
 	order: IOrder | null;
 	orderResponse: IOrderResult | null;
@@ -142,7 +146,15 @@ interface IAppState {
 - `on` - подписка на событие
 - `emit` - инициализация события
 - `trigger` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие
+- `onAll` — предоставляет возможность подписаться на все события;
+- `offAll` — удаляет все зарегистрированные обработчики для всех событий;
+- `trigger` — создаёт коллбэк-триггер, генерирующий указанное событие при вызове.
 
+Инициализация и подписка на события. Компоненты, такие как Basket, Card, Form, Order, Page, и другие, инициализируются с экземпляром EventEmitter. При инициализации, компоненты подписываются на определенные события с помощью метода on;
+Генерация и передача событий. Различные действия пользователей, например: добавление товара в корзину, отправка данных формы заказа, клик на кнопку закрытия модального окна и т. д., инициируются в компонентах. Когда происходят эти действия, компоненты используют метод emit для генерации событий с соответствующими данными;
+Обработка событий. Другие компоненты, которые подписаны на эти события, получают уведомления. Например, при добавлении товара в корзину, компонент Basket подписан на событие и обновляет список выбранных товаров и общую стоимость. При отправке данных формы заказа, компонент Order подписан на событие и обрабатывает введенные данные;
+Удаление обработчиков событий. При необходимости компоненты могут снять подписку на определенные события, используя метод off;
+Групповая подписка и отписка от событий: Методы onAll и offAll предоставляют возможность подписаться на все события или отписаться от всех событий соответственно.
 
 ### Слой данных
 
@@ -153,27 +165,26 @@ interface IAppState {
 
 В полях класса хранятся следующие данные:
 
-- product: IProductItem[] - массив объектов карточек товаров,
-- basket: string[] - массив товаров в корзине,
+- product: ICatalog[] - массив объектов карточек товаров,
+- basket: IBasket[] - массив товаров в корзине,
 - _preview: string | null - id карточки выбранной для просмотра в модальном окне,
 - order: IOrder | null - данные оформляемого заказа,
-
+- loading: boolean - указывает состояние загрузки данных;
+- formErrors: FormErrors - объект с ошибками валидации форм.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными
 
-- addToBasket(product: IProductItem) - добавление товара в корзину
-- removeFromBasket(product: IProductItem) - удаление товара из корзины
+- addToBasket(product: IBasket) - добавление товара в корзину
+- removeFromBasket(product: IBasket) - удаление товара из корзины
 - clearBasket() - очистка корзины при сбросе формы
 - updateBasket() - обновление корзины товаров
 - getTotal(): number - подсчет общей суммы товаров в корзине
-- setProduct(products: IProductItem[]) - установка каталога товаров
+- setProduct(products: IProduct[]) - установка каталога товаров
 - setOrderField(field: keyof IDeliveryForm, value: string) - установка данных способо оплаты и адреса при успешной валидации
-- setContactField(field: keyof IDataForm, value: string) - установка данных контактов при успешной валидации
-- validateOrder() - валидация полей со способом оплаты
-- validateContact() - валидация полей контактов
-- setPreview(item: IProductItem) - показ товаров
-- orderReset(): void - очистка полей формы
-- contactReset(): void - очистка полей формы
+- setContactField(field: keyof IOrder, value: string | number) - устанавливает значение поля заказа для проверки валидности формы контактов
+- validateOrder() - валидация полей со способом оплаты и контактов
+- setPreview(item: IProduct) - показ товаров
+- contactReset() - сброс формы контактных данных, при повторном оформлении форм заказа
 
 
 ### Классы представления
@@ -193,7 +204,7 @@ _closeButton: HTMLButtonElement - HTML кнопка для закрытия мо
 
 Так же класс предоставляет набор методов
 
- - `set` content — устанавливает контента модального окна,
+- `set` content — устанавливает контента модального окна,
 - `open` — открывает модальное окно,
 - `close` — закрывает модальное окно,
 - `render` — рендерит модальное окно с передачей данных о контенте.
@@ -208,7 +219,7 @@ _closeButton: HTMLButtonElement - HTML кнопка для закрытия мо
 - _description?: HTMLElement - описание карточки товара
 - _image?: HTMLImageElement - картинка товара
 - _title: HTMLElement - название карточки товара
-- _category?: HTMLElement - категория карточки товара
+- _category?: `Record<string, string>` - категория карточки товара
 - _price: HTMLElement - цена товара
 - _button?: HTMLButtonElement - кнопка добавления
 - _buttonTitle: string - текст кнопки
@@ -231,7 +242,7 @@ _closeButton: HTMLButtonElement - HTML кнопка для закрытия мо
 Поля класса 
 
 - _list: HTMLElement - HTML элемент для отображения коллекции товаров в корзине,
-- _price: HTMLElement - HTML элемент для отображения общей стоимости товаров в корзине,
+- _total: HTMLElement - HTML элемент для отображения общей стоимости товаров в корзине,
 - _button: HTMLButtonElement - HTML элемент кнопки оформления заказа
 
 Методы - сеттеры
@@ -255,7 +266,7 @@ _closeButton: HTMLButtonElement - HTML кнопка для закрытия мо
 - set address(value: string) - устанавливает адрес доставки,
 - set email(value: string) - устанавливает электронную почту,
 - set phone(value: string) - устанавливает номер телефона,
-- set payment(name: string) - устанавливает выбранный метод оплаты.
+- selected pay(name: string) - устанавливает выбранный метод оплаты.
 
 
 ### Класс Form
@@ -316,9 +327,8 @@ _closeButton: HTMLButtonElement - HTML кнопка для закрытия мо
 
 Так же класс предоставляет набор методов:
 
- - getProductItem (): Promise<IProductItem[]>: Отправляет запрос на сервер для получения списка всех товаров
- - getProduct (id: string): Promise<IProductItem>: Отправляет запрос на сервер для получения информации о продукте с указанным идентификатором
-- orderProduct (order: IOrder): Promise<IOrderResult>: Отправляет запрос на сервер для оформления заказа с указанными данными
+ - getProductItem (): `Promise<IProductItem[]>`: Отправляет запрос на сервер для получения списка всех товаров
+- order(order: IOrder): Promise<IOrderResult>: Отправляет запрос на сервер для оформления заказа с указанными данными
 
 ### Взаимодействие компонентов
 
