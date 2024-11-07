@@ -1,20 +1,20 @@
 import { Model } from './base/model';
 import {
 	IAppState,
-	IBasketProduct,
-	ICatalogProduct,
+	IBasket,
+	ICatalog,
 	IOrder,
 	FormErrors,
 } from '../types';
-import { ICard } from './Card';
+import { IProduct } from './Card';
 
 export interface CatalogChangeEvent {
-	products: ICatalogProduct[];
+	products: ICatalog[];
 }
 
 export class AppState extends Model<IAppState> {
-	basket: IBasketProduct[] = [];
-	catalog: ICatalogProduct[];
+	basket: IBasket[] = [];
+	catalog: ICatalog[];
 	loading: boolean;
 	order: IOrder = {
 		payment: '',
@@ -28,7 +28,7 @@ export class AppState extends Model<IAppState> {
 	preview: string | null;
 	formErrors: FormErrors = {};
 
-	addToBasket(item: IBasketProduct) {
+	addToBasket(item: IBasket) {
 		if (item.price !== null && this.basket.indexOf(item) < 0) {
 			this.basket.push(item);
 			this.emitChanges('counter:changed', this.basket);
@@ -36,7 +36,7 @@ export class AppState extends Model<IAppState> {
 		}
 	}
 
-	removeFromBasket(item: IBasketProduct) {
+	removeFromBasket(item: IBasket) {
 		this.basket = this.basket.filter((it) => it != item);
 		this.emitChanges('counter:changed', this.basket);
 		this.emitChanges('basket:changed', this.basket);
@@ -52,12 +52,12 @@ export class AppState extends Model<IAppState> {
 		return this.basket.reduce((total, item) => total + item.price, 0);
 	}
 
-	setCatalog(items: ICard[]) {
+	setProduct(items: IProduct[]) {
 		this.catalog = items;
 		this.emitChanges('items:changed', { catalog: this.catalog });
 	}
 
-	setPreview(item: ICard) {
+	setPreview(item: IProduct) {
 		this.preview = item.id;
 		this.emitChanges('preview:changed', item);
 	}

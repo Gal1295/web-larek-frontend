@@ -45,7 +45,7 @@ const basket = new Basket(cloneTemplate(basketTemplate), events),
 //API  Получение списка карточек продуктов
 api
 	.getProductItems()
-	.then(appData.setCatalog.bind(appData))
+	.then(appData.setProduct.bind(appData))
 	.catch((err) => {
 		console.log(err);
 	});
@@ -146,14 +146,14 @@ events.on('counter:changed', () => (page.counter = appData.basket.length));
 
 // Обновление корзины
 events.on('basket:changed', (items: IProduct[]) => {
-	basket.items = items.map((item, basketCardIndex) => {
+	basket.items = items.map((item, basketProductIndex) => {
 		const card = new Product(cloneTemplate(cardBasketTemplate), {
 			onClick: () => {
 				events.emit('product:delete', item);
 			},
 		});
 		return card.render({
-			basketCardIndex: (basketCardIndex + 1).toString(),
+			basketProductIndex: (basketProductIndex + 1).toString(),
 			title: item.title,
 			price: item.price,
 		});

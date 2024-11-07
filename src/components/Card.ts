@@ -8,7 +8,7 @@ export interface IProductAction {
 }
 
 export interface IProduct extends IProductItem {
-	basketCardIndex?: string;
+	basketProductIndex?: string;
 	buttonTitle?: string;
 }
 
@@ -19,7 +19,7 @@ export class Product<T> extends Component<IProduct> {
   protected _description?: HTMLElement;
   protected _price: HTMLElement;
   protected _button?: HTMLButtonElement;
-  protected _basketCardIndex?: HTMLElement;
+  protected _basketProductIndex?: HTMLElement;
   protected _buttonTitle?: HTMLButtonElement;
   
 
@@ -39,7 +39,7 @@ export class Product<T> extends Component<IProduct> {
     this._category = container.querySelector(`.card__category`);
     this._description = container.querySelector(`.card__text`);
     this._button = container.querySelector(`.card__button`);
-    this._basketCardIndex = container.querySelector('.basket__item-index');
+    this._basketProductIndex = container.querySelector('.basket__item-index');
 
     if (action?.onClick) {
       if (this._button) {
@@ -66,12 +66,12 @@ export class Product<T> extends Component<IProduct> {
     return this.container.dataset.id || "";
   }
 
-  set basketCardIndex(value: string) {
-		this._basketCardIndex.textContent = value;
+  set basketProductIndex(value: string) {
+		this._basketProductIndex.textContent = value;
 	}
 
-	get basketCardIndex(): string {
-		return this._basketCardIndex.textContent || '';
+	get basketProductIndex(): string {
+		return this._basketProductIndex.textContent || '';
 	}
 
   set title(value: string) {
