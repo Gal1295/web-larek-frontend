@@ -62,25 +62,16 @@ export class Product<T> extends Component<IProduct> {
     this.container.dataset.id = value;
   }
 
-  get id(): string {
-    return this.container.dataset.id || "";
-  }
 
   set basketProductIndex(value: string) {
 		this._basketProductIndex.textContent = value;
 	}
 
-	get basketProductIndex(): string {
-		return this._basketProductIndex.textContent || '';
-	}
 
   set title(value: string) {
     this.setText(this._title, value);
   }
 
-  get title(): string {
-    return this._title.textContent || "";
-  }
 
   set buttonTitle(value: string) {
     if(this._button) {
@@ -97,9 +88,6 @@ export class Product<T> extends Component<IProduct> {
     this.disableButton(value);
     }
 
-  get price(): number {
-    return Number(this._price.textContent || '');
-  }
 
   set category(value: string) {
     this.setText(this._category, value);

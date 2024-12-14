@@ -14,7 +14,7 @@ export class Order extends Form<IDeliveryForm & IDataForm> {
 			container
 		);
 		this._payment.forEach((button) =>
-			button.addEventListener('click', () => this.selected(button.name))
+			button.addEventListener('click', () => this.activatedButton(button.name))
 		);
 	}
 
@@ -37,7 +37,7 @@ export class Order extends Form<IDeliveryForm & IDataForm> {
 		this._submit.disabled = !value;
 	}
 
-	selected(name: string) {
+	activatedButton(name: string) {
 		this._payment.forEach((button) =>
 			this.toggleClass(button, 'button_alt-active', button.name === name)
 		);

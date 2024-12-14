@@ -1,5 +1,3 @@
-//Интерфейс и типы данных, описывающих карточку товара
-
 export interface IProductItem {
 	id: string;
 	title: string;
@@ -9,15 +7,21 @@ export interface IProductItem {
 	price: number | null;
 }
 
-export type IBasket = Pick<IProductItem, 'id' | 'title' | 'price'>;
-export type ICatalog = Pick<
-	IProductItem,
-	'id' | 'title' | 'price' | 'image' | 'category'
->;
+export interface IBasket {
+	id: string;
+	title: string;
+	price: number | null;
+}
 
+export interface ICatalog {
+	id: string;
+	title: string;
+	price: number | null;
+	image: string;
+	category: string;
+}
 
 //Интерфейс и типы данных, описывающих данные покупателя
-
 export interface IOrderInfo {
 	payment: string;
 	address: string;
@@ -25,32 +29,41 @@ export interface IOrderInfo {
 	phone: string;
 }
 
-export type IDeliveryForm = Pick<IOrderInfo, 'payment' | 'address'>;
-export type IDataForm = Pick<IOrderInfo, 'email' | 'phone'>;
-export type IOrderForm = IDeliveryForm & IDataForm;
+// Интерфейс для доставки
+export interface IDeliveryForm {
+	payment: string;
+	address: string;
+}
+
+// Интерфейс для данных покупателя
+export interface IDataForm {
+	email: string;
+	phone: string;
+}
+
+// Объединенный интерфейс для формы заказа
+export interface IOrderForm extends IDeliveryForm, IDataForm {}
 
 //Интерфейс описывающий оформление заказа
-
 export interface IOrder extends IOrderForm {
 	items: string[];
 	total: number;
 }
 
-//Интерфейс описывающий результат оформления заказа
 
+// Интерфейс для результата заказа
 export interface IOrderResult {
 	id: string;
 	total: number;
-}
-export type ISuccess = Pick<IOrderResult, 'total'>;
-
-
-//Тип, описывающий ошибки валидации форм
-export type FormErrors = Partial<Record<keyof IOrder, string>>;
-
+  }
+  
+  // Интерфейс для успешного результата, содержащий только поле total
+  export interface ISuccess {
+	total: number;
+  }
+  
 
 //Интерфейс, для хранения актуального состояния приложения
-
 export interface IAppState {
 	catalog: ICatalog[];
 	basket: IBasket[];
